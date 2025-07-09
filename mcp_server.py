@@ -11,6 +11,7 @@ import os
 from typing import Any, Dict, List, Optional, Sequence
 import httpx
 from pydantic import BaseModel
+from interactive_agent import INTERACTIVE_TOOLS
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -121,6 +122,66 @@ class MCPServer:
                     },
                     "required": ["topic"]
                 }
+            },
+            {
+                "name": "start_writing_session",
+                "description": "Start an interactive blog writing session",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "blog_folder": {"type": "string", "description": "Path to your blog folder", "default": "."},
+                        "topic": {"type": "string", "description": "Blog post topic"}
+                    },
+                    "required": ["topic"]
+                }
+            },
+            {
+                "name": "chat_about_post",
+                "description": "Chat with AI about your blog post",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "session_id": {"type": "string", "description": "Writing session ID"},
+                        "message": {"type": "string", "description": "Your message to the AI"},
+                        "model": {"type": "string", "default": "mistral:7b"}
+                    },
+                    "required": ["session_id", "message"]
+                }
+            },
+            {
+                "name": "update_draft",
+                "description": "Update the current blog post draft",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "session_id": {"type": "string", "description": "Writing session ID"},
+                        "content": {"type": "string", "description": "New draft content"}
+                    },
+                    "required": ["session_id", "content"]
+                }
+            },
+            {
+                "name": "save_draft",
+                "description": "Save the current draft to a file",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "session_id": {"type": "string", "description": "Writing session ID"},
+                        "filename": {"type": "string", "description": "Optional filename"}
+                    },
+                    "required": ["session_id"]
+                }
+            },
+            {
+                "name": "get_session_status",
+                "description": "Get current writing session status",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "session_id": {"type": "string", "description": "Writing session ID"}
+                    },
+                    "required": ["session_id"]
+                }
             }
         ]
         
@@ -143,6 +204,16 @@ class MCPServer:
             return await self._call_list_models(request_id)
         elif tool_name == "draft_post":
             return await self._call_draft_post(request_id, arguments)
+        elif tool_name == "start_writing_session":
+            return await self._call_start_writing_session(request_id, arguments)
+        elif tool_name == "chat_about_post":
+            return await self._call_chat_about_post(request_id, arguments)
+        elif tool_name == "update_draft":
+            return await self._call_update_draft(request_id, arguments)
+        elif tool_name == "save_draft":
+            return await self._call_save_draft(request_id, arguments)
+        elif tool_name == "get_session_status":
+            return await self._call_get_session_status(request_id, arguments)
         else:
             return self._error_response(request_id, -32602, f"Unknown tool: {tool_name}")
     
@@ -244,6 +315,91 @@ class MCPServer:
         
         except Exception as e:
             return self._error_response(request_id, -32603, f"Draft post error: {str(e)}")
+    
+    async def _call_start_writing_session(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Start a new interactive writing session"""
+        try:
+            from interactive_agent import INTERACTIVE_TOOLS
+            result = await INTERACTIVE_TOOLS["start_writing_session"](args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_chat_about_post(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Chat about the blog post"""
+        try:
+            from interactive_agent import INTERACTIVE_TOOLS
+            result = await INTERACTIVE_TOOLS["chat_about_post"](args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_update_draft(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Update the current draft"""
+        try:
+            from interactive_agent import INTERACTIVE_TOOLS
+            result = await INTERACTIVE_TOOLS["update_draft"](args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_save_draft(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Save the current draft"""
+        try:
+            from interactive_agent import INTERACTIVE_TOOLS
+            result = await INTERACTIVE_TOOLS["save_draft"](args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_get_session_status(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Get session status"""
+        try:
+            from interactive_agent import INTERACTIVE_TOOLS
+            result = await INTERACTIVE_TOOLS["get_session_status"](args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
 
     async def _handle_list_resources(self, request_id: str) -> Dict[str, Any]:
         """List available resources"""

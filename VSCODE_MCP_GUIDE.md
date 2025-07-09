@@ -40,11 +40,72 @@ Press `Ctrl+Shift+P` → Type "MCP" to see available commands:
 - **MCP: List Tools**
 - **MCP: Server Status**
 
+## 🎯 Interactive Blog Writing Workflow
+
+### **New: Collaborative Writing Mode**
+The blog-agent now supports interactive, collaborative writing where you work **with** the AI to create your blog post step by step.
+
+#### **Step 1: Start a Writing Session**
+```
+# In VS Code, open your blog folder, then use Copilot Chat:
+/start_writing_session topic="Your blog topic" blog_folder="."
+```
+
+#### **Step 2: Chat About Your Post**
+```
+# Have a conversation with the AI about your blog:
+/chat_about_post session_id="session_20250709_143022" message="I want to write about FastAPI, but focus on the security aspects"
+
+# Or ask for help:
+/chat_about_post session_id="session_20250709_143022" message="Can you help me structure this post with an introduction, 3 main sections, and a conclusion?"
+```
+
+#### **Step 3: Iterative Development**
+```
+# Ask the AI to write specific sections:
+/chat_about_post session_id="session_20250709_143022" message="Write an engaging introduction about why FastAPI security matters"
+
+# Get feedback on your ideas:
+/chat_about_post session_id="session_20250709_143022" message="I'm thinking of covering authentication, authorization, and HTTPS. What do you think?"
+```
+
+#### **Step 4: Update Your Draft**
+```
+# Update the draft with new content:
+/update_draft session_id="session_20250709_143022" content="# FastAPI Security Guide\n\nSecurity is crucial..."
+
+# Save when ready:
+/save_draft session_id="session_20250709_143022"
+```
+
+#### **Step 5: Check Progress**
+```
+# Check your session status:
+/get_session_status session_id="session_20250709_143022"
+```
+
+### **Benefits of Interactive Mode:**
+- ✅ **Work in your blog folder** (not the agent folder)
+- ✅ **Collaborative conversation** with the AI
+- ✅ **Iterative development** - build your post step by step
+- ✅ **Full control** over content and structure
+- ✅ **Natural language** interaction
+- ✅ **Conversational context** - AI remembers your discussion
+
 ## 🔧 Available MCP Tools
+
+### **Original Tools:**
 - **`chat_completion`**: Generate chat completions using Ollama models
 - **`health_check`**: Check API health status
 - **`list_models`**: List available Ollama models
 - **`draft_post`**: Generate Quarto blog post drafts with content validation
+
+### **Interactive Writing Tools:**
+- **`start_writing_session`**: Start a new interactive writing session
+- **`chat_about_post`**: Chat with AI about your blog post
+- **`update_draft`**: Update the current blog post draft
+- **`save_draft`**: Save the current draft to a file
+- **`get_session_status`**: Get current writing session status
 
 ## 🧪 Test Commands
 ```bash
