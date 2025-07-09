@@ -104,6 +104,9 @@ dmypy.json
 
 # IDE
 .vscode/
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
 .idea/
 *.swp
 *.swo

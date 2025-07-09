@@ -1,0 +1,14 @@
+{
+  "mcp.servers": {
+    "ollama-chat-api": {
+      "command": "uv",
+      "args": ["run", "python", "mcp_server.py"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "MCP_SERVER_PORT": "4891"
+      }
+    }
+  },
+  "mcp.enabled": true
+}
