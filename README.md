@@ -21,13 +21,25 @@ uv run python main.py
 
 ## Features
 
+### Core API Features
 - OpenAI-compatible `/v1/chat/completions` endpoint
 - Streaming and non-streaming responses
 - Automatic request/response format conversion
 - CORS support
 - Health check endpoint
 - Model listing endpoint
-- **MCP (Model Context Protocol) support** for VS Code integration
+
+### Blog Writing Features
+- **One-shot blog generation** - Generate complete blog posts instantly
+- **Interactive writing mode** - Collaborate with AI to build posts step-by-step
+- **Content validation** - Automatic quality checks and statistics
+- **Beautiful web interface** - Easy-to-use web UI for blog generation
+
+### VS Code Integration
+- **MCP (Model Context Protocol) support** for seamless VS Code integration
+- **Copilot Chat integration** - Use `/draft_post` commands directly in VS Code
+- **Interactive writing tools** - Full collaborative writing workflow in VS Code
+- **Task automation** - Start servers and run tests with VS Code tasks
 
 ## Setup
 
@@ -228,3 +240,74 @@ The following environment variables can be used:
 - Token usage is estimated based on word count
 - Make sure your Ollama models are pulled before using them
 - The `/v1/models` endpoint returns a placeholder list - in production you might want to query Ollama directly for available models
+
+## Usage Patterns
+
+### 1. **One-Shot Blog Generation**
+Perfect for quick blog post creation:
+
+```bash
+# Using web interface
+# 1. Start servers: .\start_mcp.bat
+# 2. Open browser: http://localhost:4891/static/index.html
+# 3. Enter topic and generate
+
+# Using VS Code Copilot Chat
+/draft_post topic="Getting Started with FastAPI"
+
+# Using direct API
+curl -X POST "http://localhost:4891/tool/draft_post" \
+  -H "Content-Type: application/json" \
+  -d '{"topic": "Getting Started with FastAPI"}'
+```
+
+### 2. **Interactive Writing Mode**
+For collaborative, iterative writing:
+
+```bash
+# 1. Navigate to your blog folder
+cd "c:\path\to\your\blog"
+code .
+
+# 2. Start writing session
+/start_writing_session topic="Your Topic" blog_folder="."
+
+# 3. Collaborate with AI
+/chat_about_post session_id="your_session_id" message="Help me structure this post"
+
+# 4. Build your post step-by-step
+/update_draft session_id="your_session_id" content="# Your content here"
+
+# 5. Save when ready
+/save_draft session_id="your_session_id"
+```
+
+### 3. **VS Code Integration**
+Seamless integration with your development workflow:
+
+```bash
+# Start all services
+Ctrl+Shift+P → Tasks: Run Task → start-mcp-full
+
+# Use in Copilot Chat
+/draft_post topic="Your topic"
+/start_writing_session topic="Your topic"
+/chat_about_post session_id="your_id" message="Your message"
+```
+
+## 📚 Documentation
+
+### Quick Start Guides
+- **[Interactive Writing Guide](./INTERACTIVE_WRITING_GUIDE.md)** - Complete guide to collaborative writing
+- **[VS Code MCP Guide](./VSCODE_MCP_GUIDE.md)** - Using blog-agent in VS Code
+- **[End-to-End Guide](./END_TO_END_GUIDE.md)** - From computer startup to published post
+
+### Development
+- **[Development Guide](./DEVELOPMENT.md)** - Development commands and features
+- **[MCP Setup](./MCP_SETUP.md)** - Model Context Protocol setup
+- **[Implementation Summary](./IMPLEMENTATION_SUMMARY.md)** - Technical implementation details
+
+### Blog Writing
+- **[One-shot Generation](./DEVELOPMENT.md#blog-post-generation)** - Generate complete posts instantly
+- **[Interactive Writing](./INTERACTIVE_WRITING_GUIDE.md)** - Collaborative writing workflow
+- **[Content Validation](./DEVELOPMENT.md#enhanced-features)** - Quality checks and statistics

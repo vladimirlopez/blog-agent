@@ -43,69 +43,164 @@ Press `Ctrl+Shift+P` → Type "MCP" to see available commands:
 ## 🎯 Interactive Blog Writing Workflow
 
 ### **New: Collaborative Writing Mode**
-The blog-agent now supports interactive, collaborative writing where you work **with** the AI to create your blog post step by step.
+The blog-agent now supports interactive, collaborative writing where you work **with** the AI to create your blog post step by step. This mode allows you to work directly in your blog folder and have natural conversations with the AI about your content.
 
 #### **Step 1: Start a Writing Session**
+**What it does:** Creates a new writing session with the AI, initializing a conversation context and creating a draft file in your current folder.
+
+**How to use:**
+1. Open VS Code in your blog folder (not the blog-agent folder)
+2. Open Copilot Chat (`Ctrl+Shift+I`)
+3. Type: `/start_writing_session topic="Your blog topic" blog_folder="."`
+
+**Example:**
 ```
-# In VS Code, open your blog folder, then use Copilot Chat:
-/start_writing_session topic="Your blog topic" blog_folder="."
+/start_writing_session topic="FastAPI Security Best Practices" blog_folder="."
 ```
+
+**What happens:**
+- Creates a session ID (e.g., `session_20250709_143022`)
+- Initializes an empty draft file
+- Sets up conversation context about your topic
+- Returns session details for reference
 
 #### **Step 2: Chat About Your Post**
-```
-# Have a conversation with the AI about your blog:
-/chat_about_post session_id="session_20250709_143022" message="I want to write about FastAPI, but focus on the security aspects"
+**What it does:** Engage in natural conversation with the AI about your blog post. The AI remembers the context and helps you develop ideas.
 
-# Or ask for help:
-/chat_about_post session_id="session_20250709_143022" message="Can you help me structure this post with an introduction, 3 main sections, and a conclusion?"
+**How to use:**
 ```
-
-#### **Step 3: Iterative Development**
-```
-# Ask the AI to write specific sections:
-/chat_about_post session_id="session_20250709_143022" message="Write an engaging introduction about why FastAPI security matters"
-
-# Get feedback on your ideas:
-/chat_about_post session_id="session_20250709_143022" message="I'm thinking of covering authentication, authorization, and HTTPS. What do you think?"
+/chat_about_post session_id="your_session_id" message="Your natural language message"
 ```
 
-#### **Step 4: Update Your Draft**
+**Examples:**
 ```
-# Update the draft with new content:
-/update_draft session_id="session_20250709_143022" content="# FastAPI Security Guide\n\nSecurity is crucial..."
+# Discuss focus and scope
+/chat_about_post session_id="session_20250709_143022" message="I want to write about FastAPI, but focus specifically on the security aspects that developers often overlook"
 
-# Save when ready:
+# Ask for structure help
+/chat_about_post session_id="session_20250709_143022" message="Can you help me structure this post with an engaging introduction, 3 main sections, and a practical conclusion?"
+
+# Get content suggestions
+/chat_about_post session_id="session_20250709_143022" message="What are the most important security vulnerabilities in FastAPI that I should cover?"
+
+# Ask for writing help
+/chat_about_post session_id="session_20250709_143022" message="Write an engaging introduction that explains why FastAPI security matters to developers"
+```
+
+**What happens:**
+- AI responds with suggestions, content, or questions
+- Conversation history is maintained
+- Context builds up over the session
+
+#### **Step 3: Update Your Draft**
+**What it does:** Updates your draft file with new content while preserving the conversation history.
+
+**How to use:**
+```
+/update_draft session_id="your_session_id" content="Your markdown content here"
+```
+
+**Example:**
+```
+/update_draft session_id="session_20250709_143022" content="# FastAPI Security Best Practices
+
+## Introduction
+
+FastAPI has become one of the most popular Python web frameworks due to its speed, ease of use, and automatic API documentation. However, with great power comes great responsibility, especially when it comes to security..."
+```
+
+**What happens:**
+- Overwrites the current draft with new content
+- Maintains proper Quarto/Markdown formatting
+- Preserves the session for continued conversation
+
+#### **Step 4: Save Your Draft**
+**What it does:** Saves the current draft to a permanent file with proper naming and formatting.
+
+**How to use:**
+```
+/save_draft session_id="your_session_id"
+```
+
+**What happens:**
+- Creates a file named `YYYY-MM-DD-topic-slug.qmd`
+- Adds proper YAML frontmatter
+- Saves to your current directory
+- Provides file path confirmation
+
+#### **Step 5: Check Progress**
+**What it does:** Shows you the current status of your writing session including conversation history and draft content.
+
+**How to use:**
+```
+/get_session_status session_id="your_session_id"
+```
+
+**What you get:**
+- Session information (topic, start time, etc.)
+- Conversation history summary
+- Current draft preview
+- File status and location
+
+### **Complete Example Workflow:**
+
+```bash
+# 1. Start session
+/start_writing_session topic="Getting Started with Docker" blog_folder="."
+
+# 2. Discuss structure
+/chat_about_post session_id="session_20250709_143022" message="I want to write a beginner-friendly guide to Docker. What should I cover?"
+
+# 3. Get specific content
+/chat_about_post session_id="session_20250709_143022" message="Write me an introduction that explains what Docker is and why beginners should care about it"
+
+# 4. Update draft with the introduction
+/update_draft session_id="session_20250709_143022" content="# Getting Started with Docker
+
+## What is Docker and Why Should You Care?
+
+Docker has revolutionized how we develop, deploy, and manage applications..."
+
+# 5. Continue the conversation
+/chat_about_post session_id="session_20250709_143022" message="Now help me write a section about installing Docker on different operating systems"
+
+# 6. Save when finished
 /save_draft session_id="session_20250709_143022"
 ```
 
-#### **Step 5: Check Progress**
-```
-# Check your session status:
-/get_session_status session_id="session_20250709_143022"
-```
-
-### **Benefits of Interactive Mode:**
-- ✅ **Work in your blog folder** (not the agent folder)
-- ✅ **Collaborative conversation** with the AI
-- ✅ **Iterative development** - build your post step by step
-- ✅ **Full control** over content and structure
-- ✅ **Natural language** interaction
-- ✅ **Conversational context** - AI remembers your discussion
+### **Key Benefits of Interactive Mode:**
+- ✅ **Work in your blog folder** - Files are created directly where you need them
+- ✅ **Collaborative conversation** - Natural language interaction with the AI
+- ✅ **Iterative development** - Build your post step by step, section by section
+- ✅ **Full control** - You decide what content to keep, modify, or discard
+- ✅ **Conversational context** - AI remembers your discussion and maintains context
+- ✅ **Flexible workflow** - Write, discuss, revise, and improve naturally
+- ✅ **Proper formatting** - Automatic Quarto/Markdown formatting and frontmatter
 
 ## 🔧 Available MCP Tools
 
-### **Original Tools:**
+### **One-Shot Blog Generation**
 - **`chat_completion`**: Generate chat completions using Ollama models
 - **`health_check`**: Check API health status
 - **`list_models`**: List available Ollama models
-- **`draft_post`**: Generate Quarto blog post drafts with content validation
+- **`draft_post`**: Generate complete Quarto blog post drafts with content validation
 
-### **Interactive Writing Tools:**
-- **`start_writing_session`**: Start a new interactive writing session
-- **`chat_about_post`**: Chat with AI about your blog post
-- **`update_draft`**: Update the current blog post draft
-- **`save_draft`**: Save the current draft to a file
-- **`get_session_status`**: Get current writing session status
+### **Interactive Writing Tools**
+- **`start_writing_session`**: Begin a collaborative writing session with conversation context
+  - Creates session ID, initializes draft file in your current folder
+  - Sets up conversation context for iterative writing
+- **`chat_about_post`**: Have natural language conversations about your blog post
+  - Maintains conversation history and context
+  - Provides suggestions, content, and writing assistance
+- **`update_draft`**: Update your draft file with new content while maintaining context
+  - Overwrites current draft with new content
+  - Preserves proper Quarto/Markdown formatting
+- **`save_draft`**: Save the current draft to a permanent file with proper formatting
+  - Creates properly named file with YAML frontmatter
+  - Saves to your current directory
+- **`get_session_status`**: Check the status of your writing session and conversation history
+  - Shows session information and conversation summary
+  - Displays current draft preview
 
 ## 🧪 Test Commands
 ```bash
