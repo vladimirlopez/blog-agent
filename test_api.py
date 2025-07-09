@@ -8,7 +8,7 @@ async def test_chat_completion():
     
     # Test data
     test_request = {
-        "model": "llama2",
+        "model": "mistral:7b",
         "messages": [
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "Say hello!"}
@@ -22,7 +22,7 @@ async def test_chat_completion():
             # Test non-streaming
             print("Testing non-streaming chat completion...")
             response = await client.post(
-                "http://localhost:8000/v1/chat/completions",
+                "http://localhost:4891/v1/chat/completions",
                 json=test_request,
                 timeout=30.0
             )
@@ -44,7 +44,7 @@ async def test_chat_completion():
             
             async with client.stream(
                 "POST",
-                "http://localhost:8000/v1/chat/completions",
+                "http://localhost:4891/v1/chat/completions",
                 json=test_request,
                 timeout=30.0
             ) as stream_response:
@@ -70,7 +70,7 @@ async def test_health():
     """Test the health endpoint."""
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get("http://localhost:8000/health")
+            response = await client.get("http://localhost:4891/health")
             if response.status_code == 200:
                 print("✅ Health check passed!")
                 print(f"Response: {response.json()}")

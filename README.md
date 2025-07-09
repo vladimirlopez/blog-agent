@@ -65,15 +65,90 @@ uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 The API will be available at `http://localhost:4891` (MCP compatible port)
 
-## MCP (Model Context Protocol) Integration
+## MCP (Model Context Protocol) Integration - SETUP COMPLETE! ✅
 
-This project includes MCP support for VS Code integration. See [MCP_SETUP.md](MCP_SETUP.md) for detailed setup instructions.
+This project includes **full MCP support** for VS Code integration. The setup is **already configured** and ready to use!
 
-**Quick MCP Setup:**
-1. Install MCP extension in VS Code
-2. Run `start_mcp.bat` to start the server on port 4891
-3. In a separate terminal: `uv run python mcp_server.py`
-4. VS Code will automatically connect to the MCP server
+### ✅ What's Already Done:
+- **MCP Extensions**: Installed `Copilot MCP` and `MCP Server Runner`
+- **VS Code Configuration**: `.vscode/settings.json` properly configured
+- **MCP Server**: `mcp_server.py` implemented with JSON-RPC 2.0 support
+- **MCP Manifest**: `mcp-manifest.json` defines all capabilities
+
+### 🚀 **Quick Start - VS Code Integration:**
+
+1. **Start the FastAPI server** (if not already running):
+   ```bash
+   .\start_mcp.bat
+   ```
+
+2. **Start the MCP server** (in a separate terminal):
+   ```bash
+   uv run python mcp_server.py
+   ```
+
+3. **Restart VS Code** to pick up the new extensions and configuration
+
+4. **Access MCP Tools in VS Code**:
+   - Open the Command Palette (`Ctrl+Shift+P`)
+   - Type "MCP" to see available MCP commands
+   - Use the MCP Server Runner extension to manage your server
+   - Use GitHub Copilot Chat with MCP integration
+
+### 🔧 **Available MCP Tools:**
+- **`chat_completion`**: Generate chat completions using your Ollama models
+- **`health_check`**: Check API health status  
+- **`list_models`**: List available Ollama models
+
+### 💡 **How to Use in VS Code:**
+
+1. **With GitHub Copilot Chat**:
+   - Open Copilot Chat panel
+   - The MCP server will automatically provide context about your local models
+   - You can directly use your local Ollama models through the chat interface
+
+2. **With MCP Server Runner**:
+   - Open the MCP Server Runner extension panel
+   - Your "ollama-chat-api" server should appear as configured
+   - Manage server status and view logs
+
+3. **Direct MCP Commands**:
+   - Use Command Palette → "MCP: Execute Tool"
+   - Select from available tools (chat_completion, health_check, list_models)
+
+### 🎯 **Test Your Integration:**
+```bash
+# Test MCP server directly
+echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}' | uv run python mcp_server.py
+```
+
+**Expected Output**: JSON response listing available tools
+
+### 📋 **Current Configuration:**
+```json
+{
+  "mcp.servers": {
+    "ollama-chat-api": {
+      "command": "uv",
+      "args": ["run", "python", "mcp_server.py"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "MCP_SERVER_PORT": "4891"
+      }
+    }
+  },
+  "mcp.enabled": true
+}
+```
+
+### 🔍 **Troubleshooting:**
+- **MCP not working?** → Restart VS Code after installing extensions
+- **Server not connecting?** → Check that both FastAPI and MCP servers are running
+- **No tools available?** → Verify MCP server responds to `tools/list` command
+- **Models not found?** → Ensure Ollama is running and models are pulled
+
+**📚 For detailed setup instructions, see [MCP_SETUP.md](MCP_SETUP.md)**
 
 ## API Documentation
 
@@ -90,7 +165,7 @@ Once the server is running, you can access:
 curl -X POST "http://localhost:4891/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "llama2",
+    "model": "mistral:7b",
     "messages": [
       {"role": "user", "content": "Hello, how are you?"}
     ]
@@ -103,7 +178,7 @@ curl -X POST "http://localhost:4891/v1/chat/completions" \
 curl -X POST "http://localhost:4891/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "llama2",
+    "model": "mistral:7b",
     "messages": [
       {"role": "user", "content": "Tell me a short story"}
     ],
@@ -117,7 +192,7 @@ curl -X POST "http://localhost:4891/v1/chat/completions" \
 curl -X POST "http://localhost:4891/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "llama2",
+    "model": "mistral:7b",
     "messages": [
       {"role": "system", "content": "You are a helpful assistant."},
       {"role": "user", "content": "Explain quantum computing"}

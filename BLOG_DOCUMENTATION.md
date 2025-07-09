@@ -12,8 +12,9 @@
 4. [Migration to UV Package Manager](#migration-to-uv-package-manager)
 5. [MCP Integration](#mcp-integration)
 6. [Troubleshooting](#troubleshooting)
-7. [Final Project Structure](#final-project-structure)
-8. [Key Learnings](#key-learnings)
+7. [Testing Guide](#testing-guide)
+8. [Final Project Structure](#final-project-structure)
+9. [Key Learnings](#key-learnings)
 
 ---
 
@@ -488,6 +489,384 @@ build-backend = "hatchling.build"
 
 ---
 
+## Testing Guide
+
+### Prerequisites for Testing
+
+Before testing, ensure you have:
+
+1. **Ollama running locally**:
+   ```bash
+   # Start Ollama server
+   ollama serve
+   
+   # Pull a model (if not already done)
+   ollama pull llama2
+   ```
+
+2. **Dependencies installed**:
+   ```bash
+   uv sync
+   ```
+
+3. **Environment configured**:
+   ```bash
+   # Optional: Create .env file
+   echo "OLLAMA_BASE_URL=http://localhost:11434" > .env
+   ```
+
+### 1. Basic API Testing
+
+#### A. Start the FastAPI Server
+
+**Option 1: Standard mode (port 8000)**:
+```bash
+uv run python main.py
+# Server starts on http://localhost:4891 (MCP compatible)
+```
+
+**Option 2: MCP mode**:
+```bash
+# Use the MCP startup script
+start_mcp.bat
+```
+
+**Option 3: Custom port**:
+```bash
+set PORT=8080
+uv run python main.py
+```
+
+#### B. Test with Built-in Test Script
+
+```bash
+uv run python test_api.py
+```
+
+**Expected Output**:
+```
+🧪 Starting API tests...
+
+✅ Health check passed!
+Response: {"status": "healthy", "ollama_url": "http://localhost:11434"}
+
+==================================================
+
+Testing non-streaming chat completion...
+✅ Non-streaming test passed!
+Response: Hello! I'm doing well, thank you for asking. How can I help you today?
+Usage: {"prompt_tokens": 12, "completion_tokens": 15, "total_tokens": 27}
+
+==================================================
+
+Testing streaming chat completion...
+✅ Streaming test started...
+Streaming response:
+Chunk: {"id": "chatcmpl-...", "object": "chat.completion.chunk", ...}
+✅ Streaming completed!
+
+🎉 Tests completed!
+```
+
+### 2. Manual API Testing with curl
+
+#### A. Health Check
+```bash
+curl -X GET "http://localhost:4891/health"
+```
+
+**Expected Response**:
+```json
+{
+  "status": "healthy",
+  "ollama_url": "http://localhost:11434"
+}
+```
+
+#### B. List Models
+```bash
+curl -X GET "http://localhost:4891/v1/models"
+```
+
+**Expected Response**:
+```json
+{
+  "object": "list",
+  "data": [
+    {
+      "id": "llama2",
+      "object": "model",
+      "created": 1677610602,
+      "owned_by": "ollama"
+    }
+  ]
+}
+```
+
+#### C. Basic Chat Completion
+```bash
+curl -X POST "http://localhost:4891/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama2",
+    "messages": [
+      {"role": "user", "content": "Hello, how are you?"}
+    ]
+  }'
+```
+
+**Expected Response**:
+```json
+{
+  "id": "chatcmpl-...",
+  "object": "chat.completion",
+  "created": 1704067200,
+  "model": "llama2",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello! I'm doing well, thank you for asking..."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 15,
+    "total_tokens": 27
+  }
+}
+```
+
+#### D. Streaming Chat Completion
+```bash
+curl -X POST "http://localhost:4891/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama2",
+    "messages": [
+      {"role": "user", "content": "Tell me a short story"}
+    ],
+    "stream": true
+  }'
+```
+
+**Expected Response** (Server-Sent Events):
+```
+data: {"id":"chatcmpl-...","object":"chat.completion.chunk","created":1704067200,"model":"llama2","choices":[{"index":0,"delta":{"content":"Once"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-...","object":"chat.completion.chunk","created":1704067200,"model":"llama2","choices":[{"index":0,"delta":{"content":" upon"},"finish_reason":null}]}
+
+data: [DONE]
+```
+
+#### E. Advanced Parameters
+```bash
+curl -X POST "http://localhost:4891/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama2",
+    "messages": [
+      {"role": "system", "content": "You are a helpful programming assistant."},
+      {"role": "user", "content": "Explain Python async/await"}
+    ],
+    "temperature": 0.7,
+    "max_tokens": 150,
+    "stop": ["```"]
+  }'
+```
+
+### 3. MCP Testing
+
+#### A. Start MCP Server
+In a separate terminal:
+```bash
+uv run python mcp_server.py
+```
+
+#### B. Test MCP Protocol Directly
+```bash
+# Test tools listing
+echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}' | uv run python mcp_server.py
+
+# Test chat completion tool
+echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "chat_completion", "arguments": {"model": "llama2", "messages": [{"role": "user", "content": "Hello"}]}}}' | uv run python mcp_server.py
+```
+
+#### C. VS Code Integration Testing
+
+1. **Install MCP Extension**:
+   - Open VS Code
+   - Install the MCP extension from marketplace
+
+2. **Verify Configuration**:
+   - Check `.vscode/settings.json` is properly configured
+   - Restart VS Code if needed
+
+3. **Test Connection**:
+   - Open VS Code MCP panel
+   - Verify "ollama-chat-api" server appears
+   - Test available tools
+
+### 4. Interactive Testing
+
+#### A. FastAPI Documentation Interface
+1. Start the server: `uv run python main.py`
+2. Open browser: `http://localhost:4891/docs`
+3. Test endpoints interactively:
+   - Click "Try it out" on any endpoint
+   - Fill in parameters
+   - Execute and view responses
+
+#### B. Alternative Documentation
+- Open browser: `http://localhost:4891/redoc`
+- View comprehensive API documentation
+
+### 5. Error Testing
+
+#### A. Test with Ollama Stopped
+```bash
+# Stop Ollama temporarily
+# Try API calls - should get 503 errors
+curl -X POST "http://localhost:4891/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "llama2", "messages": [{"role": "user", "content": "test"}]}'
+```
+
+**Expected Response**:
+```json
+{
+  "detail": "Failed to connect to Ollama: Connection refused"
+}
+```
+
+#### B. Test Invalid Model
+```bash
+curl -X POST "http://localhost:4891/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "nonexistent-model", "messages": [{"role": "user", "content": "test"}]}'
+```
+
+#### C. Test Invalid Parameters
+```bash
+curl -X POST "http://localhost:4891/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "llama2", "messages": [], "temperature": 5.0}'
+```
+
+**Expected Response**:
+```json
+{
+  "detail": [
+    {
+      "type": "less_than_equal",
+      "loc": ["body", "temperature"],
+      "msg": "Input should be less than or equal to 2"
+    }
+  ]
+}
+```
+
+### 6. Performance Testing
+
+#### A. Concurrent Requests
+```bash
+# Install apache bench if needed
+# Test with multiple concurrent requests
+ab -n 100 -c 10 -T "application/json" -p post_data.json http://localhost:4891/v1/chat/completions
+```
+
+**Create `post_data.json`**:
+```json
+{"model": "llama2", "messages": [{"role": "user", "content": "Hello"}]}
+```
+
+#### B. Streaming Performance
+```bash
+# Test streaming response time
+time curl -X POST "http://localhost:4891/v1/chat/completions" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "llama2", "messages": [{"role": "user", "content": "Count from 1 to 10"}], "stream": true}' \
+  --no-buffer
+```
+
+### 7. Debugging and Monitoring
+
+#### A. Enable Debug Logging
+```bash
+# Set debug environment
+set FASTAPI_DEBUG=true
+uv run python main.py
+```
+
+#### B. Monitor Logs
+- Watch FastAPI server logs for request/response details
+- Monitor Ollama logs for model loading and inference
+- Check MCP server output for protocol messages
+
+#### C. Use VS Code Debugger
+1. Set breakpoints in `main.py`, `ollama_client.py`, or `mcp_server.py`
+2. Use F5 to start debugging with "FastAPI Server" or "MCP Server" configuration
+3. Make API calls to trigger breakpoints
+
+### 8. Integration Testing
+
+#### A. End-to-End Workflow
+```bash
+# 1. Start Ollama
+ollama serve
+
+# 2. Start FastAPI server
+uv run python main.py
+
+# 3. Start MCP server (separate terminal)
+uv run python mcp_server.py
+
+# 4. Run comprehensive tests
+uv run python test_api.py
+
+# 5. Test VS Code integration
+# Open VS Code, use MCP tools
+```
+
+#### B. Automated Testing Suite
+Create a comprehensive test script:
+```bash
+# Run all tests in sequence
+python -c "
+import subprocess
+import sys
+
+tests = [
+    'uv run python test_api.py',
+    'curl -f http://localhost:4891/health',
+    'curl -f http://localhost:4891/v1/models'
+]
+
+for test in tests:
+    print(f'Running: {test}')
+    result = subprocess.run(test, shell=True)
+    if result.returncode != 0:
+        print(f'Test failed: {test}')
+        sys.exit(1)
+    print('✅ Test passed')
+
+print('🎉 All tests passed!')
+"
+```
+
+### Common Issues and Solutions
+
+1. **"Connection refused" errors**: Ensure Ollama is running on port 11434
+2. **"Model not found" errors**: Pull the model with `ollama pull llama2`
+3. **Port already in use**: Change the PORT environment variable
+4. **MCP not connecting**: Restart VS Code after configuration changes
+5. **Slow responses**: Check Ollama model loading and system resources
+
+---
+
 ## Final Project Structure
 
 ```
@@ -514,6 +893,55 @@ blog-agent/
 ├── MCP_SETUP.md           # MCP integration guide
 └── BLOG_DOCUMENTATION.md  # This file - complete process documentation
 ```
+
+---
+
+## Quick Start Summary
+
+**Your FastAPI + Ollama Chat API is now successfully running!**
+
+### Current Setup:
+- **FastAPI Server**: Running on port 4891 (MCP compatible)
+- **Ollama Server**: Running on port 11434
+- **Available Models**: mistral:7b, codellama, devstral, and others
+- **Default Test Model**: mistral:7b
+
+### Key Commands:
+```bash
+# Start the FastAPI server
+.\start_mcp.bat
+
+# Run comprehensive tests
+.\test_quick.bat
+
+# Test specific model
+uv run python quick_test.py --model "mistral:7b"
+
+# Run basic API tests
+uv run python test_api.py
+
+# Start MCP server for VS Code
+uv run python mcp_server.py
+```
+
+### API Endpoints:
+- **Health Check**: `GET http://localhost:4891/health`
+- **Chat Completions**: `POST http://localhost:4891/v1/chat/completions`
+- **List Models**: `GET http://localhost:4891/v1/models`
+- **API Documentation**: `http://localhost:4891/docs`
+
+### Test Results:
+✅ All tests passing (5/5)
+✅ Health check working
+✅ Non-streaming completions working
+✅ Streaming completions working
+✅ Error handling working
+✅ Model listing working
+
+### Important Notes:
+- Use `.\` prefix for batch files in PowerShell (e.g., `.\start_mcp.bat`)
+- Default model changed from `llama2` to `mistral:7b` based on available models
+- MCP server provides VS Code integration for seamless development workflow
 
 ---
 

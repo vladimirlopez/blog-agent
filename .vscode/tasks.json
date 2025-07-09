@@ -59,6 +59,34 @@
         "panel": "new"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "start-mcp-full",
+      "dependsOrder": "parallel",
+      "dependsOn": ["start-fastapi", "start-mcp-server"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "test-mcp-connection",
+      "type": "shell",
+      "command": "powershell",
+      "args": ["-c", "echo '{\"jsonrpc\": \"2.0\", \"id\": 1, \"method\": \"tools/list\"}' | uv run python mcp_server.py"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new"
+      },
+      "problemMatcher": []
     }
   ]
 }
