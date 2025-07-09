@@ -1,0 +1,97 @@
+---
+title: "creating my first AI agent"
+description: "A comprehensive guide to creating my first ai agent"
+author: "AI Assistant"
+date: "2025-07-09"
+categories: [blog, ai, guide]
+---
+
+# Creating My First AI Agent: A Step-by-Step Guide
+
+In this comprehensive guide, we will walk you through the process of creating your very first AI agent using a popular Python library called [Stable Baselines3 (SAC)](https://stable-baselines3.readthedocs.io/en/master/index.html). By the end of this tutorial, you'll have built an intelligent agent capable of playing a simple Atari game. Let's dive in!
+
+## Introduction
+
+Artificial Intelligence (AI) is no longer just a concept confined to science fiction; it has become an integral part of our everyday lives. In this article, we will learn how to create a basic AI agent using Reinforcement Learning (RL), a powerful machine learning technique used for training agents to make intelligent decisions based on a reward system.
+
+## Prerequisites
+
+To follow along with this tutorial, you'll need the following:
+
+1. Basic knowledge of Python programming
+2. Familiarity with linear algebra and calculus
+3. Understanding of Reinforcement Learning concepts (optional but recommended)
+4. Installation of Python 3.x and [Anaconda](https://www.anaconda.com/products/individual) distribution for managing your environment
+5. [Git](https://git-scm.com/) for cloning the project repository (if you prefer not to install everything manually)
+
+## Setting Up the Environment
+
+First, let's set up our working environment:
+
+1. Create a new Conda environment called `ai_agent` using:
+   ```
+   conda create -n ai_agent
+   conda activate ai_agent
+   ```
+2. Install Stable Baselines3 (SAC) and its dependencies:
+   ```
+   pip install stable-baselines3 gym torch
+   ```
+
+## Creating the AI Agent
+
+Now that our environment is ready, let's start building our agent! First, we will create a simple Deep Q Network (DQN) agent for the Atari game Pong.
+
+1. Clone the Stable Baselines3 example repository:
+   ```
+   git clone https://github.com/DLR-RMVI/stable-baselines3-examples.git
+   cd stable-baselines3-examples
+   ```
+2. Create a new file named `pong_dqn.py` in the `atari` folder. This is where we will define our agent:
+   ```
+   touch atari/pong_dqn.py
+   ```
+3. Open the newly created file and replace its contents with the following code:
+
+```python
+import numpy as np
+from stable_baselines3 import DQN, DQNConfig
+from stable_baselines3.common.vec_env import DummyVecEnv
+
+class PongDQNAgent:
+    def __init__(self):
+        self.model = DQN("MlpPolicy", "PongNoFrameskip-v4", nb_steps=10000)
+
+    def act(self, observation: np.ndarray, deterministic: bool = True) -> np.ndarray:
+        return self.model.predict(observation)[0] if deterministic else self.model.sample(observation)
+
+if __name__ == "__main__":
+    agent = PongDQNAgent()
+    env = DummyVecEnv([lambda: gym.make("PongNoFrameskip-v4")])
+
+    for i in range(1000):
+        action, _states, _, _rewards, _doneness = env.reset(), [], [], []
+
+        for state, reward, done in zip(_states, _rewards, _doneness):
+            action = agent.act(state)
+            new_state, reward, done, _ = env.step(action)
+            _states.append(new_state)
+            _rewards.append(reward)
+            _doneness.append(done)
+
+        if not all([done]):
+            agent.model.learn(env.current_states)
+```
+
+4. Run the script:
+   ```
+   python atari/pong_dqn.py
+   ```
+
+You've now created your first AI agent! Over time, it will learn to play the game of Pong and improve its performance.
+
+## Conclusion
+
+In this article, we learned how to create a simple AI agent using Stable Baselines3 and the popular Atari game Pong as an example. By understanding the basics of Reinforcement Learning and mastering the skills presented in this guide, you're well on your way to creating more advanced agents capable of tackling even more complex tasks!
+
+Stay tuned for our upcoming articles where we will delve deeper into RL concepts and build more sophisticated AI agents. Happy coding!

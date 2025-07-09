@@ -96,6 +96,33 @@ class OllamaClient:
                 detail=f"Internal server error: {str(e)}"
             )
     
+    async def list_models(self) -> Dict[str, Any]:
+        """List available models from Ollama."""
+        models_endpoint = f"{self.base_url}/api/tags"
+        
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(models_endpoint)
+                
+                if response.status_code != 200:
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=f"Ollama API error: {response.text}"
+                    )
+                
+                return response.json()
+                
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=503,
+                detail=f"Failed to connect to Ollama: {str(e)}"
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Internal server error: {str(e)}"
+            )
+
     async def stream_chat_completion(self, request: ChatCompletionRequest) -> AsyncGenerator[str, None]:
         """Stream a chat completion response from Ollama."""
         

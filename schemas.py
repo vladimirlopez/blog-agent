@@ -43,3 +43,21 @@ class StreamingChatCompletionChunk(BaseModel):
     created: int
     model: str
     choices: List[Dict[str, Any]]
+
+
+# Blog post schemas
+class DraftPostRequest(BaseModel):
+    topic: str = Field(..., description="The topic for the blog post draft")
+    model: Optional[str] = Field("mistral:7b", description="The model to use for generation")
+    blog_folder: Optional[str] = Field("posts", description="Target folder for blog posts")
+
+
+class DraftPostResponse(BaseModel):
+    """Response model for draft post creation."""
+    filename: str = Field(..., description="The filename of the created draft")
+    preview: str = Field(..., description="Preview of the first 200 characters")
+    full_path: str = Field(..., description="Full path to the created file")
+    status: str = Field("success", description="Status of the operation")
+    word_count: Optional[int] = None
+    content_stats: Optional[dict] = None
+    content_issues: Optional[List[str]] = None

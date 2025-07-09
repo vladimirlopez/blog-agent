@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Agent - Draft Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #48bb78;
+        }
+
+        .result.error {
+            background: #fed7d7;
+            border-left-color: #f56565;
+        }
+
+        .result h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #718096;
+        }
+
+        .issues {
+            background: #fef5e7;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .issues ul {
+            margin-left: 20px;
+        }
+
+        .issues li {
+            margin: 5px 0;
+            color: #744210;
+        }
+
+        .preview {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+
+        .file-info {
+            background: #e6fffa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .file-info strong {
+            color: #2c5530;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Blog Agent</h1>
+        <p class="subtitle">Generate high-quality blog post drafts with AI</p>
+        
+        <form id="draftForm">
+            <div class="form-group">
+                <label for="topic">Blog Post Topic *</label>
+                <input type="text" id="topic" name="topic" required 
+                       placeholder="e.g., Getting Started with FastAPI and Python">
+            </div>
+            
+            <div class="form-group">
+                <label for="model">AI Model</label>
+                <select id="model" name="model">
+                    <option value="mistral:7b">Mistral 7B</option>
+                    <option value="llama2">Llama 2</option>
+                    <option value="codellama">Code Llama</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="blog_folder">Blog Folder</label>
+                <input type="text" id="blog_folder" name="blog_folder" value="posts" 
+                       placeholder="posts">
+            </div>
+            
+            <button type="submit" class="generate-btn">Generate Blog Post</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating your blog post... This may take a moment.</p>
+        </div>
+        
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('draftForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            document.querySelector('.generate-btn').disabled = true;
+            
+            try {
+                const response = await fetch('/tool/draft_post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displaySuccess(result);
+                } else {
+                    displayError(result.detail || 'An error occurred');
+                }
+                
+            } catch (error) {
+                displayError('Failed to connect to the API. Make sure the server is running.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.generate-btn').disabled = false;
+            }
+        });
+        
+        function displaySuccess(result) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result';
+            
+            let html = `
+                <h3>✅ Blog Post Generated Successfully!</h3>
+                
+                <div class="file-info">
+                    <strong>📄 File:</strong> ${result.filename}<br>
+                    <strong>📂 Path:</strong> ${result.full_path}
+                </div>
+            `;
+            
+            if (result.content_stats) {
+                html += `
+                    <h4>📊 Content Statistics</h4>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${result.content_stats.word_count}</div>
+                            <div class="stat-label">Words</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${result.content_stats.heading_count}</div>
+                            <div class="stat-label">Headings</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${result.content_stats.paragraph_count}</div>
+                            <div class="stat-label">Paragraphs</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${result.content_stats.code_blocks}</div>
+                            <div class="stat-label">Code Blocks</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${result.content_stats.estimated_reading_time}</div>
+                            <div class="stat-label">Min Read</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (result.content_issues && result.content_issues.length > 0) {
+                html += `
+                    <div class="issues">
+                        <h4>⚠️ Content Issues</h4>
+                        <ul>
+                            ${result.content_issues.map(issue => `<li>${issue}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <h4>👀 Preview</h4>
+                <div class="preview">${result.preview}</div>
+            `;
+            
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+        
+        function displayError(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result error';
+            resultDiv.innerHTML = `
+                <h3>❌ Error</h3>
+                <p>${message}</p>
+            `;
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

@@ -32,14 +32,20 @@ uv sync
 uv run python main.py
 
 # Or with uvicorn directly
-uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn main:app --reload --host 0.0.0.0 --port 4891
 ```
 
 ## Testing
 
 ```bash
-# Run the test script
+# Run the basic test script
 uv run python test_api.py
+
+# Run comprehensive tests
+uv run python quick_test.py
+
+# Test draft post functionality
+uv run python test_draft_post.py
 
 # Install dev dependencies for testing
 uv sync --group dev
@@ -47,6 +53,67 @@ uv sync --group dev
 # Run with pytest (if you add tests later)
 uv run pytest
 ```
+
+## Blog Post Generation
+
+### Using the `/tool/draft_post` endpoint
+
+The blog post generation feature allows you to create Quarto blog post drafts using Ollama models with enhanced content validation and statistics.
+
+#### Web Interface
+
+For the easiest experience, use the web interface:
+
+1. **Start the server**: `uv run python main.py`
+2. **Open your browser**: Navigate to `http://localhost:4891/static/index.html`
+3. **Fill out the form**:
+   - Enter your blog post topic
+   - Select an AI model (Mistral 7B, Llama 2, or Code Llama)
+   - Specify the blog folder (default: "posts")
+4. **Generate**: Click "Generate Blog Post" and wait for the AI to create your draft
+
+#### Direct API Usage
+
+```bash
+# Create a blog post draft via HTTP API
+curl -X POST "http://localhost:4891/tool/draft_post" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "topic": "Why I love teaching physics with AI",
+    "model": "mistral:7b",
+    "blog_folder": "posts"
+  }'
+```
+
+**Enhanced Response Format:**
+```json
+{
+  "filename": "2025-01-09-why-i-love-teaching-physics-with-ai.qmd",
+  "preview": "# Why I Love Teaching Physics with AI\n\nArtificial Intelligence has revolutionized...",
+  "full_path": "/path/to/blog-agent/posts/2025-01-09-why-i-love-teaching-physics-with-ai.qmd",
+  "status": "success",
+  "word_count": 1247,
+  "content_stats": {
+    "word_count": 1247,
+    "heading_count": 5,
+    "paragraph_count": 12,
+    "code_blocks": 3,
+    "links": 2,
+    "images": 1,
+    "character_count": 7834,
+    "estimated_reading_time": 6
+  },
+  "content_issues": null
+}
+```
+
+#### Enhanced Features
+
+- **Content Validation**: Automatically checks word count, heading structure, and content quality
+- **Statistics**: Provides detailed content statistics including reading time estimation
+- **Model Validation**: Verifies that the requested AI model is available
+- **Duplicate Prevention**: Automatically handles filename conflicts
+- **Quality Warnings**: Alerts you to potential content issues
 
 ## Development Tools
 

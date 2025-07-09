@@ -29,6 +29,10 @@ Press `Ctrl+Shift+P` → Type "Tasks: Run Task" → Select:
   - "What models are available?"
   - "Generate a response using mistral:7b"
   - "Check the health of the API"
+  - "Generate a blog post about FastAPI"
+- Or use the direct commands:
+  - `/draft_post topic="Your blog topic here"`
+  - `/chat_completion model="mistral:7b" message="Hello world"`
 
 ### 4. **Direct MCP Commands**
 Press `Ctrl+Shift+P` → Type "MCP" to see available commands:
@@ -40,6 +44,7 @@ Press `Ctrl+Shift+P` → Type "MCP" to see available commands:
 - **`chat_completion`**: Generate chat completions using Ollama models
 - **`health_check`**: Check API health status
 - **`list_models`**: List available Ollama models
+- **`draft_post`**: Generate Quarto blog post drafts with content validation
 
 ## 🧪 Test Commands
 ```bash
@@ -51,6 +56,9 @@ echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "he
 
 # Test chat completion
 echo '{"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "chat_completion", "arguments": {"model": "mistral:7b", "messages": [{"role": "user", "content": "Hello!"}]}}}' | uv run python mcp_server.py
+
+# Test draft_post tool
+echo '{"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": "draft_post", "arguments": {"topic": "Getting Started with AI"}}}' | uv run python mcp_server.py
 ```
 
 ## 🔄 Restart Instructions

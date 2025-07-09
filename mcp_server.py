@@ -108,6 +108,19 @@ class MCPServer:
                 "name": "list_models",
                 "description": "List available models",
                 "inputSchema": {"type": "object", "properties": {}}
+            },
+            {
+                "name": "draft_post",
+                "description": "Generate a Quarto blog post draft",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "topic": {"type": "string", "description": "The topic for the blog post"},
+                        "model": {"type": "string", "default": "mistral:7b", "description": "Model to use for generation"},
+                        "blog_folder": {"type": "string", "default": "posts", "description": "Target folder for blog posts"}
+                    },
+                    "required": ["topic"]
+                }
             }
         ]
         
@@ -128,6 +141,8 @@ class MCPServer:
             return await self._call_health_check(request_id)
         elif tool_name == "list_models":
             return await self._call_list_models(request_id)
+        elif tool_name == "draft_post":
+            return await self._call_draft_post(request_id, arguments)
         else:
             return self._error_response(request_id, -32602, f"Unknown tool: {tool_name}")
     
@@ -204,6 +219,32 @@ class MCPServer:
         except Exception as e:
             return self._error_response(request_id, -32603, f"Models list error: {str(e)}")
     
+    async def _call_draft_post(self, request_id: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+        """Call draft post endpoint"""
+        try:
+            response = await self.client.post(
+                f"{self.base_url}/tool/draft_post",
+                json=arguments
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "content": [{
+                            "type": "text",
+                            "text": f"✅ Blog post draft created!\n\nFilename: {result['filename']}\nPath: {result['full_path']}\n\nPreview:\n{result['preview']}"
+                        }]
+                    }
+                }
+            else:
+                return self._error_response(request_id, -32603, f"Draft post creation failed: {response.status_code}")
+        
+        except Exception as e:
+            return self._error_response(request_id, -32603, f"Draft post error: {str(e)}")
+
     async def _handle_list_resources(self, request_id: str) -> Dict[str, Any]:
         """List available resources"""
         resources = [

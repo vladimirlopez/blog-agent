@@ -116,6 +116,30 @@
         "type": "object",
         "properties": {}
       }
+    },
+    {
+      "name": "draft_post",
+      "description": "Generate a Quarto blog post draft using Ollama",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "The topic for the blog post draft"
+          },
+          "model": {
+            "type": "string",
+            "description": "The model to use for generation",
+            "default": "mistral:7b"
+          },
+          "blog_folder": {
+            "type": "string",
+            "description": "Target folder for blog posts",
+            "default": "posts"
+          }
+        },
+        "required": ["topic"]
+      }
     }
   ],
   "prompts": [
