@@ -1,0 +1,72 @@
+---
+title: "Getting started with FastAPI and Ollama"
+description: "A comprehensive guide to getting started with fastapi and ollama"
+author: "AI Assistant"
+date: "2025-07-13"
+categories: [blog, ai, guide]
+---
+
+# Title: Getting Started with FastAPI and Ollama: A Powerful Duo for Modern API Development
+
+## Description:
+Discover the power of integrating FastAPI, a modern, fast (high-performance) web framework for building APIs, with Ollama, an open-source language model, to create intelligent, efficient, and easy-to-maintain APIs. In this post, we'll walk through setting up your environment, creating an API endpoint using FastAPI, and integrating Ollama for natural language processing capabilities.
+
+## Author: John Doe
+## Date: 2023-04-15
+## Categories: FastAPI, Ollama, APIs, Machine Learning
+
+---
+
+Welcome to the exciting world of API development! Today, we're going to explore how you can leverage the power of FastAPI and Ollama to create intelligent and efficient APIs. If you're new to these tools, don't worry - we've got you covered with a step-by-step guide on getting started.
+
+## Setting up your environment
+
+First things first: Let's get our environment set up! You'll need Python 3.7 or higher installed on your machine, along with Pip (Python's package manager). If you haven't already, install FastAPI and Ollama using the following command in your terminal:
+
+```bash
+pip install fastapi ollama[full]
+```
+
+Now that we have our tools ready, let's move on to creating an API endpoint with FastAPI.
+
+## Creating an API Endpoint with FastAPI
+
+FastAPI makes it easy to create robust APIs quickly. Let's create a simple API endpoint that accepts a text input and returns the detected language using Ollama for NLP processing:
+
+```python
+from fastapi import FastAPI, HTTPException
+from ollama.langchain import LanguageChain
+
+app = FastAPI()
+
+def get_language(text):
+    llm = LanguageChain.from_chain_names(["detect_language"])
+    result = llm({"input": text})
+    return result["output_text"]
+
+@app.post("/translate")
+async def translate(data: dict):
+    if "text" not in data:
+        raise HTTPException(status_code=422, detail="Text input is required.")
+
+    language = get_language(data["text"])
+    return {"translated_language": language}
+```
+
+In the code above, we've created a FastAPI application and defined a POST endpoint `/translate`. The endpoint accepts JSON data containing a text key, processes the input using Ollama to detect the language, and returns the detected language.
+
+## Putting it all together
+
+To test your API, you can use tools like curl or Postman to send HTTP requests. For example, here's how you can send a request with curl:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"text": "Hello, World!"}' http://localhost:8000/translate
+```
+
+You should receive a JSON response containing the detected language.
+
+## Conclusion
+
+With FastAPI and Ollama, you can create powerful APIs that leverage machine learning capabilities for natural language processing tasks. In this post, we've walked through setting up your environment, creating an API endpoint with FastAPI, and integrating Ollama for NLP processing. There's a whole world of possibilities waiting for you to explore!
+
+Stay tuned for more tutorials on using these amazing tools in exciting ways. Happy coding! 🤖🚀

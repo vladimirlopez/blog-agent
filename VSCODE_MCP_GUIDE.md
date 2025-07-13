@@ -7,6 +7,7 @@ Both the FastAPI server and MCP server are running and fully functional. Here's 
 ## 📋 Current Status
 - ✅ **FastAPI Server**: Running on port 4891
 - ✅ **MCP Server**: Running and responding to requests
+- ✅ **Ollama**: Running on port 11434 with models available
 - ✅ **MCP Extensions**: Installed (Copilot MCP, MCP Server Runner)
 - ✅ **VS Code Configuration**: Properly configured
 
