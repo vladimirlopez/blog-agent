@@ -10,8 +10,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 import httpx
-from schemas import ChatCompletionRequest, ChatCompletionResponse, DraftPostRequest, DraftPostResponse
-from ollama_client import OllamaClient
+from .schemas import ChatCompletionRequest, ChatCompletionResponse, DraftPostRequest, DraftPostResponse
+from .ollama_client import OllamaClient
 
 # Interactive writing session state
 writing_sessions = {}

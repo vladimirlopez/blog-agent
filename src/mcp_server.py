@@ -11,12 +11,12 @@ import os
 from typing import Any, Dict, List, Optional, Sequence
 import httpx
 from pydantic import BaseModel
-from interactive_agent import INTERACTIVE_TOOLS
+from .interactive_agent import INTERACTIVE_TOOLS
 
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from schemas import ChatCompletionRequest, ChatMessage
+from .schemas import ChatCompletionRequest, ChatMessage
 
 
 class MCPServer:
@@ -319,7 +319,6 @@ class MCPServer:
     async def _call_start_writing_session(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
         """Start a new interactive writing session"""
         try:
-            from interactive_agent import INTERACTIVE_TOOLS
             result = await INTERACTIVE_TOOLS["start_writing_session"](args)
             return {
                 "jsonrpc": "2.0",
@@ -336,7 +335,7 @@ class MCPServer:
     async def _call_chat_about_post(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
         """Chat about the blog post"""
         try:
-            from interactive_agent import INTERACTIVE_TOOLS
+
             result = await INTERACTIVE_TOOLS["chat_about_post"](args)
             return {
                 "jsonrpc": "2.0",
@@ -353,7 +352,7 @@ class MCPServer:
     async def _call_update_draft(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
         """Update the current draft"""
         try:
-            from interactive_agent import INTERACTIVE_TOOLS
+
             result = await INTERACTIVE_TOOLS["update_draft"](args)
             return {
                 "jsonrpc": "2.0",
@@ -370,7 +369,7 @@ class MCPServer:
     async def _call_save_draft(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
         """Save the current draft"""
         try:
-            from interactive_agent import INTERACTIVE_TOOLS
+
             result = await INTERACTIVE_TOOLS["save_draft"](args)
             return {
                 "jsonrpc": "2.0",
@@ -387,7 +386,7 @@ class MCPServer:
     async def _call_get_session_status(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
         """Get session status"""
         try:
-            from interactive_agent import INTERACTIVE_TOOLS
+
             result = await INTERACTIVE_TOOLS["get_session_status"](args)
             return {
                 "jsonrpc": "2.0",

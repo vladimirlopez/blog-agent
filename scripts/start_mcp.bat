@@ -39,13 +39,13 @@ echo.
 echo Starting FastAPI server on port 4891 (MCP compatible)...
 echo 📖 API Documentation: http://localhost:4891/docs
 echo 🔗 API Endpoint: http://localhost:4891/v1/chat/completions
-echo 🔧 MCP Server: Use 'uv run python mcp_server.py' in separate terminal
+echo 🔧 MCP Server: Use 'uv run python -m src.mcp_server' in separate terminal
 echo.
 echo Press Ctrl+C to stop the server
 echo.
 
 set PORT=4891
-uv run python main.py
+uv run python -m src.main
 
 echo.
 echo Server stopped.

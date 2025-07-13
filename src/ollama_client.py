@@ -4,7 +4,7 @@ import uuid
 from typing import Dict, Any, AsyncGenerator
 import httpx
 from fastapi import HTTPException
-from schemas import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice, ChatCompletionUsage, ChatMessage
+from .schemas import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice, ChatCompletionUsage, ChatMessage
 
 
 class OllamaClient:
