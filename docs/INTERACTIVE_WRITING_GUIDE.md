@@ -27,20 +27,20 @@ cd "c:\Users\vladi\AI Projects\blog-agent"
 
 ### 3. **Collaborate with AI**
 ```bash
-# Have natural conversations about your post
-/chat_about_post session_id="your_session_id" message="Help me structure this post"
+# Have natural conversations about your post (no session ID needed!)
+/chat message="Help me structure this post"
 ```
 
 ### 4. **Build Your Post**
 ```bash
 # Update your draft with new content
-/update_draft session_id="your_session_id" content="# Your content here"
+/update content="# Your content here"
 ```
 
 ### 5. **Save When Ready**
 ```bash
 # Save the final post
-/save_draft session_id="your_session_id"
+/save
 ```
 
 ## 📋 Available Interactive Tools
@@ -62,43 +62,43 @@ cd "c:\Users\vladi\AI Projects\blog-agent"
 - Temporary draft file path
 - Session initialization confirmation
 
-### `chat_about_post`
-**Purpose:** Have natural language conversations about your blog post
+### `chat` (Simplified Command)
+**Purpose:** Have natural language conversations about your active blog post (no session ID needed!)
 
 **Parameters:**
-- `session_id` (required): Your session ID from start_writing_session
 - `message` (required): Your message to the AI
 
 **Examples:**
 ```bash
 # Get structure suggestions
-/chat_about_post session_id="session_20250709_143022" message="How should I structure this post about Docker?"
+/chat message="How should I structure this post about Docker?"
 
 # Request specific content
-/chat_about_post session_id="session_20250709_143022" message="Write an engaging introduction about Docker for Python developers"
+/chat message="Write an engaging introduction about Docker for Python developers"
 
 # Ask for improvements
-/chat_about_post session_id="session_20250709_143022" message="Can you make this section more beginner-friendly?"
+/chat message="Can you make this section more beginner-friendly?"
 
 # Get code examples
-/chat_about_post session_id="session_20250709_143022" message="I need a practical Docker example for a Python web app"
+/chat message="I need a practical Docker example for a Python web app"
 ```
+
+**Legacy Command:** You can still use `/chat_about_post session_id="..." message="..."` if needed
 
 **Returns:**
 - AI response with suggestions, content, or questions
 - Updated conversation context
 - Content recommendations
 
-### `update_draft`
-**Purpose:** Update your draft file with new content
+### `update` (Simplified Command)
+**Purpose:** Update your active draft file with new content (no session ID needed!)
 
 **Parameters:**
-- `session_id` (required): Your session ID
 - `content` (required): The new content for your draft (Markdown format)
 
 **Example:**
 ```bash
-/update_draft session_id="session_20250709_143022" content="# Docker for Python Developers
+/update content="# Docker for Python Developers
 
 ## Introduction
 
@@ -109,37 +109,43 @@ Docker has revolutionized how we develop, ship, and run applications. For Python
 Python projects often suffer from the \"it works on my machine\" problem..."
 ```
 
+**Legacy Command:** You can still use `/update_draft session_id="..." content="..."` if needed
+
 **Returns:**
 - Confirmation of draft update
 - Current draft preview
 - File location information
 
-### `save_draft`
-**Purpose:** Save your current draft to a permanent file with proper formatting
+### `save` (Simplified Command)
+**Purpose:** Save your current active draft to a permanent file with proper formatting (no session ID needed!)
 
 **Parameters:**
-- `session_id` (required): Your session ID
+- None required! Works with your active session
 
 **Example:**
 ```bash
-/save_draft session_id="session_20250709_143022"
+/save
 ```
+
+**Legacy Command:** You can still use `/save_draft session_id="..."` if needed
 
 **Returns:**
 - Final filename (e.g., `2025-07-09-docker-for-python-developers.qmd`)
 - Full file path
 - Confirmation of save operation
 
-### `get_session_status`
-**Purpose:** Check the status of your writing session
+### `status` (Simplified Command)
+**Purpose:** Check the status of your active writing session (no session ID needed!)
 
 **Parameters:**
-- `session_id` (required): Your session ID
+- None required! Works with your active session
 
 **Example:**
 ```bash
-/get_session_status session_id="session_20250709_143022"
+/status
 ```
+
+**Legacy Command:** You can still use `/get_session_status session_id="..."` if needed
 
 **Returns:**
 - Session information (topic, start time, file location)
@@ -171,7 +177,7 @@ code .
 
 ### Step 2: Plan Structure
 ```bash
-/chat_about_post session_id="session_20250709_143022" message="I want to write about TypeScript for JavaScript developers. What would be a good structure for this post?"
+/chat message="I want to write about TypeScript for JavaScript developers. What would be a good structure for this post?"
 ```
 
 **AI Response:**
@@ -192,7 +198,7 @@ Would you like me to help you write any specific section?
 
 ### Step 3: Write Introduction
 ```bash
-/chat_about_post session_id="session_20250709_143022" message="Write an engaging introduction that explains what TypeScript is and why JavaScript developers should care about it"
+/chat message="Write an engaging introduction that explains what TypeScript is and why JavaScript developers should care about it"
 ```
 
 **AI Response:**
@@ -208,7 +214,7 @@ Would you like me to continue with the next section?
 
 ### Step 4: Update Draft
 ```bash
-/update_draft session_id="session_20250709_143022" content="# Getting Started with TypeScript
+/update content="# Getting Started with TypeScript
 
 ## Introduction
 
@@ -219,12 +225,12 @@ TypeScript isn't just \"JavaScript with types\"—it's a powerful development to
 
 ### Step 5: Continue Building
 ```bash
-/chat_about_post session_id="session_20250709_143022" message="Now I need a section about installation and setup. Make it practical with step-by-step instructions"
+/chat message="Now I need a section about installation and setup. Make it practical with step-by-step instructions"
 ```
 
 ### Step 6: Check Progress
 ```bash
-/get_session_status session_id="session_20250709_143022"
+/status
 ```
 
 **Response:**
@@ -252,7 +258,7 @@ If you've been writing JavaScript for a while, you've probably encountered those
 
 ### Step 7: Finalize and Save
 ```bash
-/save_draft session_id="session_20250709_143022"
+/save
 ```
 
 **Response:**
@@ -273,24 +279,24 @@ If you've been writing JavaScript for a while, you've probably encountered those
 
 2. **Ask for Structure First**
    ```bash
-   /chat_about_post session_id="your_id" message="Help me plan the structure of this post about React hooks"
+   /chat message="Help me plan the structure of this post about React hooks"
    ```
 
 3. **Request Specific Content Types**
    ```bash
    # For code examples
-   /chat_about_post session_id="your_id" message="I need a practical code example showing how to use useState"
+   /chat message="I need a practical code example showing how to use useState"
    
    # For explanations
-   /chat_about_post session_id="your_id" message="Explain the difference between let and const in simple terms"
+   /chat message="Explain the difference between let and const in simple terms"
    
    # For improvements
-   /chat_about_post session_id="your_id" message="Can you make this section more engaging and add some humor?"
+   /chat message="Can you make this section more engaging and add some humor?"
    ```
 
 4. **Use the AI for Review**
    ```bash
-   /chat_about_post session_id="your_id" message="I've written a section about closures. Can you review it and suggest improvements?"
+   /chat message="I've written a section about closures. Can you review it and suggest improvements?"
    ```
 
 ### Building Content Iteratively

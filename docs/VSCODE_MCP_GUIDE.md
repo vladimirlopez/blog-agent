@@ -68,42 +68,54 @@ The blog-agent now supports interactive, collaborative writing where you work **
 #### **Step 2: Chat About Your Post**
 **What it does:** Engage in natural conversation with the AI about your blog post. The AI remembers the context and helps you develop ideas.
 
-**How to use:**
+**✨ NEW: Simplified Commands (Recommended)**
+Once you start a session, simply use the short `/chat` command:
 ```
-/chat_about_post session_id="your_session_id" message="Your natural language message"
+/chat message="Your natural language message"
 ```
 
 **Examples:**
 ```
 # Discuss focus and scope
-/chat_about_post session_id="session_20250709_143022" message="I want to write about FastAPI, but focus specifically on the security aspects that developers often overlook"
+/chat message="I want to write about FastAPI, but focus specifically on the security aspects that developers often overlook"
 
 # Ask for structure help
-/chat_about_post session_id="session_20250709_143022" message="Can you help me structure this post with an engaging introduction, 3 main sections, and a practical conclusion?"
+/chat message="Can you help me structure this post with an engaging introduction, 3 main sections, and a practical conclusion?"
 
 # Get content suggestions
-/chat_about_post session_id="session_20250709_143022" message="What are the most important security vulnerabilities in FastAPI that I should cover?"
+/chat message="What are the most important security vulnerabilities in FastAPI that I should cover?"
 
 # Ask for writing help
-/chat_about_post session_id="session_20250709_143022" message="Write an engaging introduction that explains why FastAPI security matters to developers"
+/chat message="Write an engaging introduction that explains why FastAPI security matters to developers"
+```
+
+**Legacy Method (Still Available):**
+```
+/chat_about_post session_id="your_session_id" message="Your message"
 ```
 
 **What happens:**
 - AI responds with suggestions, content, or questions
 - Conversation history is maintained
 - Context builds up over the session
+- No need to remember or type session IDs!
 
 #### **Step 3: Update Your Draft**
 **What it does:** Updates your draft file with new content while preserving the conversation history.
 
-**How to use:**
+**✨ NEW: Simplified Command (Recommended)**
+```
+/update content="Your markdown content here"
+```
+
+**Legacy Method:**
 ```
 /update_draft session_id="your_session_id" content="Your markdown content here"
 ```
 
 **Example:**
 ```
-/update_draft session_id="session_20250709_143022" content="# FastAPI Security Best Practices
+/update content="# FastAPI Security Best Practices
 
 ## Introduction
 
@@ -118,7 +130,12 @@ FastAPI has become one of the most popular Python web frameworks due to its spee
 #### **Step 4: Save Your Draft**
 **What it does:** Saves the current draft to a permanent file with proper naming and formatting.
 
-**How to use:**
+**✨ NEW: Simplified Command (Recommended)**
+```
+/save
+```
+
+**Legacy Method:**
 ```
 /save_draft session_id="your_session_id"
 ```
@@ -132,7 +149,12 @@ FastAPI has become one of the most popular Python web frameworks due to its spee
 #### **Step 5: Check Progress**
 **What it does:** Shows you the current status of your writing session including conversation history and draft content.
 
-**How to use:**
+**✨ NEW: Simplified Command (Recommended)**
+```
+/status
+```
+
+**Legacy Method:**
 ```
 /get_session_status session_id="your_session_id"
 ```
@@ -142,6 +164,7 @@ FastAPI has become one of the most popular Python web frameworks due to its spee
 - Conversation history summary
 - Current draft preview
 - File status and location
+- File status and location
 
 ### **Complete Example Workflow:**
 
@@ -149,24 +172,24 @@ FastAPI has become one of the most popular Python web frameworks due to its spee
 # 1. Start session
 /start_writing_session topic="Getting Started with Docker" blog_folder="."
 
-# 2. Discuss structure
-/chat_about_post session_id="session_20250709_143022" message="I want to write a beginner-friendly guide to Docker. What should I cover?"
+# 2. Discuss structure (✨ NEW: simplified command!)
+/chat message="I want to write a beginner-friendly guide to Docker. What should I cover?"
 
 # 3. Get specific content
-/chat_about_post session_id="session_20250709_143022" message="Write me an introduction that explains what Docker is and why beginners should care about it"
+/chat message="Write me an introduction that explains what Docker is and why beginners should care about it"
 
-# 4. Update draft with the introduction
-/update_draft session_id="session_20250709_143022" content="# Getting Started with Docker
+# 4. Update draft with the introduction (✨ NEW: simplified command!)
+/update content="# Getting Started with Docker
 
 ## What is Docker and Why Should You Care?
 
 Docker has revolutionized how we develop, deploy, and manage applications..."
 
 # 5. Continue the conversation
-/chat_about_post session_id="session_20250709_143022" message="Now help me write a section about installing Docker on different operating systems"
+/chat message="Now help me write a section about installing Docker on different operating systems"
 
-# 6. Save when finished
-/save_draft session_id="session_20250709_143022"
+# 6. Save when finished (✨ NEW: simplified command!)
+/save
 ```
 
 ### **Key Benefits of Interactive Mode:**
@@ -177,6 +200,24 @@ Docker has revolutionized how we develop, deploy, and manage applications..."
 - ✅ **Conversational context** - AI remembers your discussion and maintains context
 - ✅ **Flexible workflow** - Write, discuss, revise, and improve naturally
 - ✅ **Proper formatting** - Automatic Quarto/Markdown formatting and frontmatter
+- ✅ **✨ NEW: Simplified commands** - No more typing session IDs for every command!
+
+### **📝 Command Quick Reference:**
+
+**Start Session (Always Required First):**
+- `/start_writing_session topic="Your topic" blog_folder="."`
+
+**✨ NEW Simplified Commands (Use After Starting Session):**
+- `/chat message="Your message"` - Chat naturally (no session ID needed!)
+- `/update content="Your content"` - Update draft (no session ID needed!)
+- `/save` - Save draft (no session ID needed!)
+- `/status` - Check progress (no session ID needed!)
+
+**Legacy Commands (Still Work):**
+- `/chat_about_post session_id="..." message="..."`
+- `/update_draft session_id="..." content="..."`
+- `/save_draft session_id="..."`
+- `/get_session_status session_id="..."`
 
 ## 🔧 Available MCP Tools
 

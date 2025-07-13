@@ -25,6 +25,8 @@ class MCPServer:
     def __init__(self, base_url: str = "http://localhost:4891"):
         self.base_url = base_url
         self.client = httpx.AsyncClient(timeout=120.0)
+        # Store the active session ID for simplified chat commands
+        self.active_session_id: Optional[str] = None
     
     async def handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """Handle incoming MCP requests"""
@@ -149,6 +151,18 @@ class MCPServer:
                 }
             },
             {
+                "name": "chat",
+                "description": "Chat with AI about your current writing session (uses active session)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "message": {"type": "string", "description": "Your message to the AI"},
+                        "model": {"type": "string", "default": "mistral:7b"}
+                    },
+                    "required": ["message"]
+                }
+            },
+            {
                 "name": "update_draft",
                 "description": "Update the current blog post draft",
                 "inputSchema": {
@@ -182,6 +196,35 @@ class MCPServer:
                     },
                     "required": ["session_id"]
                 }
+            },
+            {
+                "name": "update",
+                "description": "Update the current draft (uses active session)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "content": {"type": "string", "description": "New draft content"}
+                    },
+                    "required": ["content"]
+                }
+            },
+            {
+                "name": "save",
+                "description": "Save the current draft to a file (uses active session)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "filename": {"type": "string", "description": "Optional filename"}
+                    }
+                }
+            },
+            {
+                "name": "status",
+                "description": "Get current writing session status (uses active session)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
             }
         ]
         
@@ -208,12 +251,20 @@ class MCPServer:
             return await self._call_start_writing_session(request_id, arguments)
         elif tool_name == "chat_about_post":
             return await self._call_chat_about_post(request_id, arguments)
+        elif tool_name == "chat":
+            return await self._call_chat(request_id, arguments)
         elif tool_name == "update_draft":
             return await self._call_update_draft(request_id, arguments)
         elif tool_name == "save_draft":
             return await self._call_save_draft(request_id, arguments)
         elif tool_name == "get_session_status":
             return await self._call_get_session_status(request_id, arguments)
+        elif tool_name == "update":
+            return await self._call_update(request_id, arguments)
+        elif tool_name == "save":
+            return await self._call_save(request_id, arguments)
+        elif tool_name == "status":
+            return await self._call_status(request_id, arguments)
         else:
             return self._error_response(request_id, -32602, f"Unknown tool: {tool_name}")
     
@@ -320,6 +371,11 @@ class MCPServer:
         """Start a new interactive writing session"""
         try:
             result = await INTERACTIVE_TOOLS["start_writing_session"](args)
+            
+            # Store the session ID as the active session for simplified commands
+            if isinstance(result, dict) and "session_id" in result:
+                self.active_session_id = result["session_id"]
+            
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
@@ -337,6 +393,40 @@ class MCPServer:
         try:
 
             result = await INTERACTIVE_TOOLS["chat_about_post"](args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_chat(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Chat with AI using the active session (simplified command)"""
+        try:
+            # Check if we have an active session
+            if not self.active_session_id:
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {
+                        "code": -32602,
+                        "message": "No active writing session. Please start a session first with /start_writing_session"
+                    }
+                }
+            
+            # Add the active session ID to the arguments
+            chat_args = {
+                "session_id": self.active_session_id,
+                **args
+            }
+            
+            # Call the existing chat_about_post function
+            result = await INTERACTIVE_TOOLS["chat_about_post"](chat_args)
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
@@ -388,6 +478,99 @@ class MCPServer:
         try:
 
             result = await INTERACTIVE_TOOLS["get_session_status"](args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_update(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Update draft using the active session (simplified command)"""
+        try:
+            if not self.active_session_id:
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {
+                        "code": -32602,
+                        "message": "No active writing session. Please start a session first with /start_writing_session"
+                    }
+                }
+            
+            update_args = {
+                "session_id": self.active_session_id,
+                **args
+            }
+            
+            result = await INTERACTIVE_TOOLS["update_draft"](update_args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_save(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Save draft using the active session (simplified command)"""
+        try:
+            if not self.active_session_id:
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {
+                        "code": -32602,
+                        "message": "No active writing session. Please start a session first with /start_writing_session"
+                    }
+                }
+            
+            save_args = {
+                "session_id": self.active_session_id,
+                **args
+            }
+            
+            result = await INTERACTIVE_TOOLS["save_draft"](save_args)
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result
+            }
+        except Exception as e:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32603, "message": f"Internal error: {str(e)}"}
+            }
+
+    async def _call_status(self, request_id: str, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Get session status using the active session (simplified command)"""
+        try:
+            if not self.active_session_id:
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {
+                        "code": -32602,
+                        "message": "No active writing session. Please start a session first with /start_writing_session"
+                    }
+                }
+            
+            status_args = {
+                "session_id": self.active_session_id,
+                **args
+            }
+            
+            result = await INTERACTIVE_TOOLS["get_session_status"](status_args)
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,

@@ -86,7 +86,9 @@ uv run python -m src.mcp_server
 3. Use commands:
    - `/draft_post topic="Your blog topic"` - Generate complete blog post
    - `/start_writing_session topic="Your topic" blog_folder="."` - Start interactive session
-   - `/chat_about_post session_id="..." message="..."` - Chat about your post
+   - `/chat message="..."` - Chat about your active post (simplified!)
+   - `/update content="..."` - Update your active post
+   - `/save` - Save your active post
 
 ## 🎯 Usage Modes
 
@@ -98,18 +100,19 @@ Perfect for quick blog post creation:
 
 ### Interactive Collaborative Writing
 Ideal for iterative, conversational blog development:
+
 ```
 # Start session
 /start_writing_session topic="Docker for Beginners" blog_folder="."
 
-# Chat and develop ideas
-/chat_about_post session_id="session_123" message="Help me structure this post"
+# Chat and develop ideas (no session ID needed!)
+/chat message="Help me structure this post"
 
 # Update draft with new content
-/update_draft session_id="session_123" content="# Your content here"
+/update content="# Your content here"
 
 # Save when done
-/save_draft session_id="session_123"
+/save
 ```
 
 ## 🧪 Testing
